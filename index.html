@@ -322,9 +322,13 @@
     note.classList.remove('err');
     btn.disabled=true; btn.textContent='Sending…';
     try{
-      const r=await fetch('https://formsubmit.co/ajax/reinhartrenovations@gmail.com',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},
-        body:JSON.stringify(Object.assign({Name:d.name,Phone:d.phone||'(not given)',Email:d.email||'(not given)','Project address':d.address,'Type of work':d.type,'Project details':d.details,_subject:'Website estimate request: '+d.type+' – '+d.address,_template:'table',_captcha:'false'},d.email.trim()?{_replyto:d.email.trim()}:{}))});
-      if(!r.ok) throw new Error(r.status);
+      const payload={access_key:'1c824f69-a56d-477e-9293-e825100aa34b',subject:'Website estimate request: '+d.type+' – '+d.address,from_name:'Reinhart Renovations website',
+        Name:d.name,Phone:d.phone||'(not given)',Email:d.email||'(not given)','Project address':d.address,'Type of work':d.type,'Project details':d.details};
+      if(d.email.trim()) payload.replyto=d.email.trim();
+      const r=await fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(payload)});
+      const res=await r.json().catch(()=>({}));
+      if(!r.ok||res.success===false) throw new Error(res.message||r.status);
+      
       f.reset();
       note.textContent='Thanks, '+d.name.split(' ')[0]+'! Your request was sent. We\'ll be in touch soon. Need us sooner? Call/text 563-329-0821.';
       btn.textContent='Sent';
