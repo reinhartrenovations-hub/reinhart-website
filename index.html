@@ -18,6 +18,8 @@
 <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@700,800&f[]=switzer@400,500,600&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="assets/hero.webp">
 <link rel="stylesheet" href="style.css">
+<script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</script>
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -329,6 +331,7 @@
       const res=await r.json().catch(()=>({}));
       if(!r.ok||res.success===false) throw new Error(res.message||r.status);
       
+      try{window.va('event',{name:'Estimate request sent',data:{type:d.type}});}catch(_){}
       f.reset();
       note.textContent='Thanks, '+d.name.split(' ')[0]+'! Your request was sent. We\'ll be in touch soon. Need us sooner? Call/text 563-329-0821.';
       btn.textContent='Sent';
