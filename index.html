@@ -6,6 +6,14 @@
 <title>Reinhart Renovations | Roofing, Pole Buildings & Remodeling in Northeast Iowa</title>
 <meta name="description" content="Reinhart Renovations builds and repairs roofs, pole buildings, and homes across Elkader, Clayton County, and the surrounding counties in northeast Iowa. Itemized estimates. Call 563-329-0821.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23922b21'/%3E%3Cpath d='M5 15 16 6l11 9' fill='none' stroke='%23fff' stroke-width='3' stroke-linejoin='round'/%3E%3Cpath d='M11 26V15h6a3.5 3.5 0 0 1 0 7h-6m5 0 5 4' fill='none' stroke='%23fff' stroke-width='2.6' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Reinhart Renovations | Roofing, Pole Buildings & Remodeling in Northeast Iowa">
+<meta property="og:description" content="Roofs, pole buildings, remodels, and structural repair around Elkader and Clayton County. Itemized written estimates. Call/text 563-329-0821.">
+<meta property="og:url" content="https://reinhart-website.vercel.app/">
+<meta property="og:image" content="https://reinhart-website.vercel.app/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://api.fontshare.com">
 <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@700,800&f[]=switzer@400,500,600&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="assets/hero.webp">
@@ -245,8 +253,9 @@
           </select>
         </label>
         <label>Project details<textarea name="details" rows="4" required placeholder="Size, timeline, anything we should know"></textarea></label>
+        <input type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px">
         <button class="btn btn-primary" type="submit">Send my request</button>
-        <p class="form-note" id="form-note" role="status">Opens your email app with the details filled in.</p>
+        <p class="form-note" id="form-note" role="status">We usually reply within one business day.</p>
       </form>
     </div>
   </section>
@@ -301,14 +310,26 @@
   }
 
   const f=document.getElementById('quote-form'), note=document.getElementById('form-note');
-  f.addEventListener('submit',e=>{
+  const btn=f.querySelector('button[type=submit]');
+  f.addEventListener('submit',async e=>{
     e.preventDefault();
     const d=Object.fromEntries(new FormData(f));
+    if(d._honey) return;
     if(!d.name.trim()||!d.details.trim()){note.textContent='Please add your name and a few project details.';note.classList.add('err');return;}
     note.classList.remove('err');
-    const body=`Name: ${d.name}\nPhone: ${d.phone}\nTown: ${d.town}\nType of work: ${d.type}\n\n${d.details}`;
-    window.location.href='mailto:reinhartrenovations@gmail.com?subject='+encodeURIComponent('Estimate request: '+d.type)+'&body='+encodeURIComponent(body);
-    note.textContent='Thanks. Your email app should open now. Prefer to talk? Call 563-329-0821.';
+    btn.disabled=true; btn.textContent='Sending…';
+    try{
+      const r=await fetch('https://formsubmit.co/ajax/reinhartrenovations@gmail.com',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},
+        body:JSON.stringify({Name:d.name,Phone:d.phone,Town:d.town,'Type of work':d.type,'Project details':d.details,_subject:'Website estimate request: '+d.type,_template:'table',_captcha:'false'})});
+      if(!r.ok) throw new Error(r.status);
+      f.reset();
+      note.textContent='Thanks, '+d.name.split(' ')[0]+'! Your request was sent. We\'ll be in touch soon. Need us sooner? Call/text 563-329-0821.';
+      btn.textContent='Sent';
+    }catch(err){
+      note.classList.add('err');
+      note.innerHTML='Sorry, that didn\'t go through. Please call/text <a href="tel:+15633290821">563-329-0821</a> or email <a href="mailto:reinhartrenovations@gmail.com">reinhartrenovations@gmail.com</a>.';
+      btn.disabled=false; btn.textContent='Send my request';
+    }
   });
 })();
 </script>
