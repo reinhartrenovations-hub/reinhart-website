@@ -240,8 +240,9 @@
         <label>Name<input name="name" required autocomplete="name"></label>
         <div class="row">
           <label>Phone<input name="phone" type="tel" autocomplete="tel"></label>
-          <label>Town<input name="town" placeholder="Elkader"></label>
+          <label>Email <span class="opt">(optional)</span><input name="email" type="email" autocomplete="email"></label>
         </div>
+        <label>Project address<input name="address" required autocomplete="street-address" placeholder="Street, town"></label>
         <label>Type of work
           <select name="type" id="type">
             <option>Roofing</option>
@@ -315,12 +316,14 @@
     e.preventDefault();
     const d=Object.fromEntries(new FormData(f));
     if(d._honey) return;
-    if(!d.name.trim()||!d.details.trim()){note.textContent='Please add your name and a few project details.';note.classList.add('err');return;}
+    if(!d.name.trim()||!d.address.trim()||!d.details.trim()){note.textContent='Please add your name, the project address, and a few project details.';note.classList.add('err');return;}
+    if(!d.phone.trim()&&!d.email.trim()){note.textContent='Please add a phone number or email so we can reach you.';note.classList.add('err');return;}
+    if(d.email.trim()&&!/^\S+@\S+\.\S+$/.test(d.email.trim())){note.textContent='That email address doesn\'t look right. Please check it, or leave it blank.';note.classList.add('err');return;}
     note.classList.remove('err');
     btn.disabled=true; btn.textContent='Sending…';
     try{
       const r=await fetch('https://formsubmit.co/ajax/reinhartrenovations@gmail.com',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},
-        body:JSON.stringify({Name:d.name,Phone:d.phone,Town:d.town,'Type of work':d.type,'Project details':d.details,_subject:'Website estimate request: '+d.type,_template:'table',_captcha:'false'})});
+        body:JSON.stringify(Object.assign({Name:d.name,Phone:d.phone||'(not given)',Email:d.email||'(not given)','Project address':d.address,'Type of work':d.type,'Project details':d.details,_subject:'Website estimate request: '+d.type+' – '+d.address,_template:'table',_captcha:'false'},d.email.trim()?{_replyto:d.email.trim()}:{}))});
       if(!r.ok) throw new Error(r.status);
       f.reset();
       note.textContent='Thanks, '+d.name.split(' ')[0]+'! Your request was sent. We\'ll be in touch soon. Need us sooner? Call/text 563-329-0821.';
